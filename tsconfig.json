@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "jsx": "preserve",
+    "module": "ES2020",
+    "target": "ES2016",
+    "declaration": true,
+    "sourceMap": true,
+    "removeComments": false,
+    "preserveConstEnums" : true,
+    "skipLibCheck": true,
+    "moduleResolution":"node",
+    "strict": true,
+    "noImplicitAny": false,
+    "baseUrl": ".",
+    "outDir": "dist",
+    "paths" : {
+      "@thorium-components/*" : ["src/thorium-components/*"],
+      "@components/*" : ["src/components/*"],
+      "@modules/*" : ["src/modules/*"],
+      "@utils/*" : ["src/utils/*"],
+      "@context/*" : ["src/context/*"],
+      "@preload/*" : ["src/preload/*"],
+    }
+  },
+  "include": ["./src/*"],
+}
