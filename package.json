@@ -2,7 +2,7 @@
   "name": "thorium-components",
   "version": "1.0.0",
   "description": "",
-  "main": "reweired.conf.js",
+  "main": "./dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:doc": "typedoc --plugin typedoc-plugin-markdown --out docs src/index.ts"
@@ -10,8 +10,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@microsoft/fast-components": "^2.30.6",
     "@types/node": "^20.10.5",
-    "thorium-framework": "^1.0.10",
+    "thorium-framework": "file:../thorium-framework",
     "typedoc": "^0.25.4",
     "typedoc-plugin-markdown": "^3.17.1"
   }
