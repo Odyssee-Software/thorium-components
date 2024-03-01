@@ -1,4 +1,6 @@
-import { CustomElement, JSXNodeTemplate, IConnectorTemplate } from 'thorium-framework';
+import { DOM , CustomElement, JSXNodeTemplate, IConnectorTemplate } from 'thorium-framework';
+const { virtual:Virtual } = DOM;
+
 import {
   Button as _button,
   Accordion as _accordion,
@@ -69,19 +71,84 @@ import {
   provideFASTDesignSystem,
   allComponents,
 } from "@microsoft/fast-components";
+import { State, _State } from 'thorium-framework/modules/states';
 
 provideFASTDesignSystem()
   .withPrefix("thorium")
   .register(allComponents);
 
-function createConnector<Attributes, Properties>(localName: string) {
-  return function (props: JSXNodeTemplate<Attributes, Properties>) {
+// Définir un type pour les clés valides d'HTMLElement
+type ValidHTMLElementKeys = keyof HTMLElement;
+let div = DOM.render<CustomElement<HTMLElement , {}>>({ localName : 'div' });
+console.log({ div })
+// Fonction pour vérifier si une chaîne est une clé valide
+function isHTMLElementKey(key: string): key is ValidHTMLElementKeys {
+    return key in div;
+}
 
-    console.log( `createConnector ${localName}` , { props })
+/**
+ * La fonction `baseElementAfterMounting` configure des abonnements pour les objets d'état dans les
+ * attributs d'un élément personnalisé afin de mettre à jour les propriétés de l'élément lorsque l'état
+ * change.
+ * @param {CustomElement} target - Le paramètre `target` dans la fonction `baseElementAfterMounting`
+ * est un CustomElement auquel les attributs et propriétés seront appliqués après le montage.
+ * @param attributes - Le paramètre `attributes` dans la fonction `baseElementAfterMounting` est un
+ * objet Record qui contient des paires clé-valeur représentant les attributs d'un élément
+ * personnalisé. Chaque clé est une chaîne représentant le nom de l'attribut et la valeur
+ * correspondante peut être de n'importe quel type.
+ * @param properties - Le paramètre `properties` dans la fonction `baseElementAfterMounting` est un
+ * objet Record qui contient des paires clé-valeur de propriétés pour l'élément personnalisé. Ces
+ * propriétés seront utilisées pour configurer des écouteurs d'événements ou d'autres configurations
+ * sur l'élément personnalisé après son montage dans le DOM.
+ */
+function baseElementAfterMounting ( target:CustomElement , attributes:Record<string,any> , properties:Record<string,any> ){
+
+  for(let key of Object.keys( attributes )){
+    if(attributes[key] && attributes[key] instanceof _State){
+
+      let state = attributes[key] as State<string>;
+
+      let [ value , handler ] = state.mutator;
+      value.subscribe( target , ( newValue ) => {
+        target[key] = newValue;
+      } )
+
+    }
+  }
+
+}
+
+function dataGrigAfterMounting ( target:CustomElement<HTMLElement , _dataGrid> , attributes:Record<string,any> , properties:Record<string,any> ){
+
+  let dataAttributeName = "rowsData";
+
+  if( attributes[dataAttributeName] ){
+    let rowsData = attributes[dataAttributeName];
+
+    target.rowsData = rowsData;
+
+    if( rowsData instanceof _State ){
+
+      let [ value , handler ] = rowsData.mutator;
+      value.subscribe( target , ( newValue ) => {
+        console.log({ newValue })
+        target.rowsData = newValue;
+        
+      })
+
+    }
+
+  }
+
+}
+
+function createConnector<Attributes, Properties>( localName: string , afterMountingHandler?:( target:CustomElement<any , any> , attributes:Record<string,any> , properties:Record<string,any> ) => void ) {
+  return function (props: JSXNodeTemplate<Attributes, Properties> = {}) {
 
     let [ attributes , properties ] = Object.keys( props ).reduce(( result , key ) => {
 
-      if(key[0] == '_')result[1][key.replace('_' , '')] = props[key];
+      if(key == 'childrens')return result;
+      if(isHTMLElementKey(key) && ( key != 'style' ))result[1][key] = props[key];
       else result[0][key] = props[key];
 
       return result;
@@ -89,53 +156,63 @@ function createConnector<Attributes, Properties>(localName: string) {
 
     return {
       localName,
-      attr: {...props.attr , ...attributes} || attributes,
+      attr: attributes || {},
       childrens: props.childrens || [],
-      proto: {...props.proto , ...properties} || properties
+      proto: {
+        ...properties,
+        afterMounting(target) {
+
+          if(afterMountingHandler)afterMountingHandler( target , attributes , properties );
+          
+          if(properties["afterMounting"])return properties["afterMounting"]();
+
+        },
+      } || {}
     } as JSXNodeTemplate<Attributes, Properties>;
+    
   }
 }
 
-export const Button = createConnector<_button, {}>('thorium-button');
-export const Accordion = createConnector<_accordion, {}>('thorium-accordion');
-export const AccordionItem = createConnector<_accordionItem, {}>('thorium-accordion-item');
-export const Anchor = createConnector<_anchor, {}>('thorium-anchor');
-export const Avatar = createConnector<_avatar, {}>('thorium-avatar');
-export const Badge = createConnector<_badge, {}>('thorium-badge');
-export const Breadcrumb = createConnector<_breadcrumb, {}>('thorium-breadcumb');
-export const BreadcrumbItem = createConnector<_breadcrumbItem, {}>('thorium-breadcumb-item');
-export const Calendar = createConnector<_calendar, {}>('thorium-calendar');
-export const Card = createConnector<_card, {}>('thorium-card');
-export const Checkbox = createConnector<_checkbox, {}>('thorium-checkbox');
-export const Combobox = createConnector<_combobox, {}>('thorium-combobox');
-export const DataGrid = createConnector<_dataGrid, {}>('thorium-data-grid');
-export const DataGridCell = createConnector<_dataGridCell, {}>('thorium-data-grid-cell');
-export const DataGridRow = createConnector<_dataGridRow, {}>('thorium-data-grid-row');
-export const Dialog = createConnector<_dialog, {}>('thorium-dialog');
-export const Divider = createConnector<_divider, {}>('thorium-divider');
-export const Flipper = createConnector<_flipper, {}>('thorium-flipper');
-export const HorizontalScroll = createConnector<_horizontalScroll, {}>('thorium-horizontal-scroll');
-export const Listbox = createConnector<_listbox, {}>('thorium-listbox');
-export const ListboxOption = createConnector<_listboxOption, {}>('thorium-listbox-option');
-export const Menu = createConnector<_menu, {}>('thorium-menu');
-export const MenuItem = createConnector<_menuItem, {}>('thorium-menu');
-export const NumberField = createConnector<_numberField, {}>('thorium-number-field');
-export const Progress = createConnector<_progress, {}>('thorium-progress');
-export const ProgressRing = createConnector<_progressRing, {}>('thorium-progress-ring');
-export const Radio = createConnector<_radio, {}>('thorium-radio');
-export const RadioGroup = createConnector<_radioGroup, {}>('thorium-radio-group');
-export const Search = createConnector<_search, {}>('thorium-search');
-export const Select = createConnector<_select, {}>('thorium-select');
-export const Skeleton = createConnector<_skeleton, {}>('thorium-skeleton');
-export const Slider = createConnector<_slider, {}>('thorium-slider');
-export const SliderLabel = createConnector<_sliderLabel, {}>('thorium-slider-label');
-export const Switch = createConnector<_switch, {}>('thorium-switch');
-export const Tab = createConnector<_tab, {}>('thorium-tab');
-export const TabPanel = createConnector<_tabPanel, {}>('thorium-tab-panel');
-export const Tabs = createConnector<_tabs, {}>('thorium-tabs');
-export const TextArea = createConnector<_textArea, {}>('thorium-text-area');
-export const TextField = createConnector<_textField, {}>('thorium-text-field');
-export const Toolbar = createConnector<_toolbar, {}>('thorium-toolbar');
-export const Tooltip = createConnector<_tooltip, {}>('thorium-tooltip');
-export const TreeItem = createConnector<_treeItem, {}>('thorium-tree-item');
-export const TreeView = createConnector<_treeView, {}>('thorium-tree-view');
+export const ThoriumButton = createConnector<_button, {}>('thorium-button' , baseElementAfterMounting);
+export const ThoriumAccordion = createConnector<_accordion, {}>('thorium-accordion' , baseElementAfterMounting);
+export const ThoriumAccordionItem = createConnector<_accordionItem, {}>('thorium-accordion-item' , baseElementAfterMounting);
+export const ThoriumAnchor = createConnector<_anchor, {}>('thorium-anchor' , baseElementAfterMounting);
+export const ThoriumAvatar = createConnector<_avatar, {}>('thorium-avatar' , baseElementAfterMounting);
+export const ThoriumBadge = createConnector<_badge, {}>('thorium-badge' , baseElementAfterMounting);
+export const ThoriumBreadcrumb = createConnector<_breadcrumb, {}>('thorium-breadcrumb' , baseElementAfterMounting);
+export const ThoriumBreadcrumbItem = createConnector<_breadcrumbItem, {}>('thorium-breadcrumb-item' , baseElementAfterMounting);
+export const ThoriumCalendar = createConnector<_calendar, {}>('thorium-calendar' , baseElementAfterMounting);
+export const ThoriumCard = createConnector<_card, {}>('thorium-card' , baseElementAfterMounting);
+export const ThoriumCheckbox = createConnector<_checkbox, {}>('thorium-checkbox' , baseElementAfterMounting);
+export const ThoriumCombobox = createConnector<_combobox, {}>('thorium-combobox' , baseElementAfterMounting);
+export const ThoriumDataGrid = createConnector<_dataGrid, {}>('thorium-data-grid' , dataGrigAfterMounting);
+export const ThoriumDataGridCell = createConnector<_dataGridCell, {}>('thorium-data-grid-cell' , baseElementAfterMounting);
+export const ThoriumDataGridRow = createConnector<_dataGridRow, {}>('thorium-data-grid-row' , baseElementAfterMounting);
+export const ThoriumDialog = createConnector<_dialog, {}>('thorium-dialog' , baseElementAfterMounting);
+export const ThoriumDivider = createConnector<_divider, {}>('thorium-divider' , baseElementAfterMounting);
+export const ThoriumFlipper = createConnector<_flipper, {}>('thorium-flipper' , baseElementAfterMounting);
+export const ThoriumHorizontalScroll = createConnector<_horizontalScroll, {}>('thorium-horizontal-scroll' , baseElementAfterMounting);
+export const ThoriumListbox = createConnector<_listbox, {}>('thorium-listbox' , baseElementAfterMounting);
+export const ThoriumListboxOption = createConnector<_listboxOption, {}>('thorium-listbox-option' , baseElementAfterMounting);
+export const ThoriumMenu = createConnector<_menu, {}>('thorium-menu' , baseElementAfterMounting);
+export const ThoriumMenuItem = createConnector<_menuItem, {}>('thorium-menu-item' , baseElementAfterMounting);
+export const ThoriumNumberField = createConnector<_numberField, {}>('thorium-number-field' , baseElementAfterMounting);
+export const ThoriumProgress = createConnector<_progress, {}>('thorium-progress' , baseElementAfterMounting);
+export const ThoriumProgressRing = createConnector<_progressRing, {}>('thorium-progress-ring' , baseElementAfterMounting);
+export const ThoriumRadio = createConnector<_radio, {}>('thorium-radio' , baseElementAfterMounting);
+export const ThoriumRadioGroup = createConnector<_radioGroup, {}>('thorium-radio-group' , baseElementAfterMounting);
+export const ThoriumSearch = createConnector<_search, {}>('thorium-search' , baseElementAfterMounting);
+export const ThoriumSelect = createConnector<_select, {}>('thorium-select' , baseElementAfterMounting);
+export const ThoriumSkeleton = createConnector<_skeleton, {}>('thorium-skeleton' , baseElementAfterMounting);
+export const ThoriumSlider = createConnector<_slider, {}>('thorium-slider' , baseElementAfterMounting);
+export const ThoriumSliderLabel = createConnector<_sliderLabel, {}>('thorium-slider-label' , baseElementAfterMounting);
+export const ThoriumSwitch = createConnector<_switch, {}>('thorium-switch' , baseElementAfterMounting);
+export const ThoriumTab = createConnector<_tab, {}>('thorium-tab' , baseElementAfterMounting);
+export const ThoriumTabPanel = createConnector<_tabPanel, {}>('thorium-tab-panel' , baseElementAfterMounting);
+export const ThoriumTabs = createConnector<_tabs, {}>('thorium-tabs' , baseElementAfterMounting);
+export const ThoriumTextArea = createConnector<_textArea, {}>('thorium-text-area' , baseElementAfterMounting);
+export const ThoriumTextField = createConnector<_textField, {}>('thorium-text-field' , baseElementAfterMounting);
+export const ThoriumToolbar = createConnector<_toolbar, {}>('thorium-toolbar' , baseElementAfterMounting);
+export const ThoriumTooltip = createConnector<_tooltip, {}>('thorium-tooltip' , baseElementAfterMounting);
+export const ThoriumTreeItem = createConnector<_treeItem, {}>('thorium-tree-item' , baseElementAfterMounting);
+export const ThoriumTreeView = createConnector<_treeView, {}>('thorium-tree-view' , baseElementAfterMounting);
