@@ -118,6 +118,21 @@ function baseElementAfterMounting ( target:CustomElement , attributes:Record<str
 
 }
 
+/**
+ * La fonction `dataGridAfterMounting` définit l'attribut `rowsData` d'un élément personnalisé en
+ * fonction des attributs et propriétés fournis, et s'abonne aux modifications si `rowsData` est une
+ * instance de `_State`.
+ * @param target - Le paramètre `target` dans la fonction `dataGridAfterMounting` est un élément
+ * personnalisé représentant un élément HTML avec un type de grille de données spécifique. Il est
+ * utilisé pour manipuler et interagir avec le composant de grille de données dans le DOM.
+ * @param attributes - Le paramètre `attributes` dans la fonction `dataGridAfterMounting` est un
+ * enregistrement contenant des paires clé-valeur d'attributs qui sont transmises à l'élément
+ * personnalisé. Ces attributs sont accessibles en utilisant le nom de l'attribut comme clé. Dans cette
+ * fonction, la variable `dataAttributeName` est définie sur "lignes
+ * @param properties - Le paramètre `properties` dans la fonction `dataGridAfterMounting` est un objet
+ * Record qui contient des paires clé-valeur de propriétés pour l'élément personnalisé. Ces propriétés
+ * sont accessibles et définies sur l'élément « cible » dans la fonction.
+ */
 function dataGrigAfterMounting ( target:CustomElement<HTMLElement , _dataGrid> , attributes:Record<string,any> , properties:Record<string,any> ){
 
   let dataAttributeName = "rowsData";
@@ -133,7 +148,7 @@ function dataGrigAfterMounting ( target:CustomElement<HTMLElement , _dataGrid> ,
       value.subscribe( target , ( newValue ) => {
         console.log({ newValue })
         target.rowsData = newValue;
-        
+
       })
 
     }
@@ -142,6 +157,20 @@ function dataGrigAfterMounting ( target:CustomElement<HTMLElement , _dataGrid> ,
 
 }
 
+/**
+ * La fonction `createConnector` dans TypeScript crée un élément personnalisé avec des attributs et des
+ * propriétés spécifiés, ainsi qu'un gestionnaire facultatif après le montage.
+ * @param {string} localName - Le paramètre `localName` dans la fonction `createConnector` est une
+ * chaîne qui représente le nom de l'élément personnalisé en cours de création.
+ * @param [afterMountingHandler] - Le paramètre `afterMountingHandler` dans la fonction
+ * `createConnector` est une fonction de rappel qui est appelée après le montage de l'élément
+ * personnalisé. Il faut trois paramètres :
+ * @returns La fonction `createConnector` renvoie une fonction qui prend les accessoires comme argument
+ * et les traite pour extraire les attributs, les propriétés et les enfants. Il renvoie ensuite un
+ * objet avec le localName, les attributs, les enfants et un objet prototype qui inclut une fonction «
+ * afterMounting ». Si un `afterMountingHandler` est fourni, il sera appelé avec l'élément cible, les
+ * attributs et les propriétés.
+ */
 function createConnector<Attributes, Properties>( localName: string , afterMountingHandler?:( target:CustomElement<any , any> , attributes:Record<string,any> , properties:Record<string,any> ) => void ) {
   return function (props: JSXNodeTemplate<Attributes, Properties> = {}) {
 
@@ -174,6 +203,12 @@ function createConnector<Attributes, Properties>( localName: string , afterMount
 }
 
 export const ThoriumButton = createConnector<_button, {}>('thorium-button' , baseElementAfterMounting);
+/* Le code ci-dessus dans TypeScript définit un composant appelé « ThoriumAccordion » à l'aide de la
+bibliothèque Fast Design. Il semble créer un connecteur pour un composant accordéon basé sur le type
+`_accordion` et un objet vide comme deuxième argument. Le code fait référence à la documentation
+Fast Design pour les composants et semble configurer le composant accordéon avec le nom spécifié «
+thorium-accordion » et un élément de base après le montage. */
+// Reference à https://www.fast.design/docs/components/accordion
 export const ThoriumAccordion = createConnector<_accordion, {}>('thorium-accordion' , baseElementAfterMounting);
 export const ThoriumAccordionItem = createConnector<_accordionItem, {}>('thorium-accordion-item' , baseElementAfterMounting);
 export const ThoriumAnchor = createConnector<_anchor, {}>('thorium-anchor' , baseElementAfterMounting);
