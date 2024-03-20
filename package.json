@@ -1,5 +1,5 @@
 {
-  "name": "thorium-components",
+  "name": "@Odyssee-Sofware/thorium-components",
   "version": "1.0.0",
   "description": "",
   "main": "./dist/index.js",
@@ -11,7 +11,7 @@
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "https://github.com/infrasoftbe/infrasoft-vnv-sdk.git"
+    "url": "https://github.com/Odyssee-Software/thorium-components.git"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/@Odyssee-Sofware"
