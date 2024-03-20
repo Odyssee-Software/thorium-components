@@ -18,7 +18,7 @@ jobs:
           registry-url : https://npm.pkg.github.com
           scope : '@Odyssee-Software'
       - run: npm install --force
-      - run: npm run build
+      - run: npx tsc
       - run: npm publish
         env :
           NODE_AUTH_TOKEN : ${{secrets.PUBLISH_TOKEN}}
