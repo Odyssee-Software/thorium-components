@@ -1,6 +1,8 @@
 import { DOM , CustomElement, JSXNodeTemplate, IConnectorTemplate } from 'thorium-framework';
 const { virtual:Virtual } = DOM;
 
+export { ThoriumPromise } from './thoriumPromiseElement';
+
 import {
   Button as _button,
   Accordion as _accordion,
@@ -228,7 +230,7 @@ export const ThoriumDivider = createConnector<_divider, {}>('thorium-divider' , 
 export const ThoriumFlipper = createConnector<_flipper, {}>('thorium-flipper' , baseElementAfterMounting);
 export const ThoriumHorizontalScroll = createConnector<_horizontalScroll, {}>('thorium-horizontal-scroll' , baseElementAfterMounting);
 export const ThoriumListbox = createConnector<_listbox, {}>('thorium-listbox' , baseElementAfterMounting);
-export const ThoriumListboxOption = createConnector<_listboxOption, {}>('thorium-listbox-option' , baseElementAfterMounting);
+export const ThoriumOption = createConnector<_listboxOption, {}>('thorium-option' , baseElementAfterMounting);
 export const ThoriumMenu = createConnector<_menu, {}>('thorium-menu' , baseElementAfterMounting);
 export const ThoriumMenuItem = createConnector<_menuItem, {}>('thorium-menu-item' , baseElementAfterMounting);
 export const ThoriumNumberField = createConnector<_numberField, {}>('thorium-number-field' , baseElementAfterMounting);

@@ -1,0 +1,25 @@
+name: Node.js Package
+
+on:
+  push:
+    branches: ["prod"]
+  pull_request:
+    branches: ["prod"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses : actions/checkout@v2
+      - uses : actions/setup-node@v1
+        with :
+          node-version : 16
+          registry-url : https://npm.pkg.github.com
+          scope : '@Odyssee-Software'
+      - run: npm install --force
+      - run: npm run build
+      - run: npm publish
+        env :
+          NODE_AUTH_TOKEN : ${{secrets.PUBLISH_TOKEN}}
+

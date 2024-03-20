@@ -7,8 +7,15 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:doc": "typedoc --plugin typedoc-plugin-markdown --out docs src/index.ts"
   },
-  "author": "",
+  "author": "@odyssee-software",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/infrasoftbe/infrasoft-vnv-sdk.git"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/@Odyssee-Sofware"
+  },
   "dependencies": {
     "@microsoft/fast-components": "^2.30.6",
     "@types/node": "^20.10.5",
